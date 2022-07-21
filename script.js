@@ -1,5 +1,6 @@
 const playGameButton = document.querySelector('#playGame');
 const playRoundButton = document.querySelector('#playRound');
+const quitGameButton = document.querySelector('#quitGame');
 
 function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
@@ -54,18 +55,32 @@ function playRound() {
     console.log(result);
 }
 
-function game() {
+function resetGame() {
+    playGameButton.hidden = false;
+    playRoundButton.hidden = true;
+    quitGameButton.hidden = true;
+}
+
+async function game() {
     const rounds = Number(prompt("Enter number of rounds: "));
     playGameButton.hidden = true;
     playRoundButton.hidden = false;
+    quitGameButton.hidden = false;
 
-    playRoundButton.addEventListener('click', playRound);
+    for (let i = 0; i < rounds; ++i) {
+        const startNextRound = new Promise((resolve, reject) => {
+            playRoundButton.addEventListener('click', resolve);
+            quitGameButton.addEventListener('click', reject);
+        })
+        await startNextRound
+            .then(() => playRound())
+            .catch(() => { i = rounds });
+    }
 
-    playGameButton.hidden = false;
-    playRoundButton.hidden = true;
+    resetGame();
 }
 
-playRoundButton.hidden = true;
+resetGame();
 playGameButton.addEventListener('click', game);
 
 
