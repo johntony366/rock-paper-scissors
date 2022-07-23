@@ -1,6 +1,10 @@
-const playGameButton = document.querySelector('#playGame');
-const playRoundButton = document.querySelector('#playRound');
-const quitGameButton = document.querySelector('#quitGame');
+const rock = document.querySelector('#rock');
+const paper = document.querySelector('#paper');
+const scissors = document.querySelector('#scissors');
+const results = document.querySelector('#roundResult');
+const score = document.querySelector('#score');
+let playerScore = 0;
+let computerScore = 0;
 
 function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
@@ -19,8 +23,8 @@ function getComputerChoice() {
 }
 
 function checkResult(playerSelection, computerSelection) {
-    const w = `You Win! ${playerSelection} beats ${computerSelection}`;
-    const l = `You Lose! ${computerSelection} beats ${playerSelection}`;
+    const w = true;
+    const l = false;
     if (playerSelection === computerSelection)
         return `It's a draw! You both played ${playerSelection}`;
     switch (playerSelection) {
@@ -48,39 +52,41 @@ function checkResult(playerSelection, computerSelection) {
     }
 }
 
-function playRound() {
-    const playerSelection = prompt("Choose one of Rock, Paper, Scissors: ");
+function playRound(e) {
+    const playerSelection = e.target.textContent;
     const computerSelection = getComputerChoice();
     const result = checkResult(playerSelection, computerSelection);
-    console.log(result);
-}
-
-function resetGame() {
-    playGameButton.hidden = false;
-    playRoundButton.hidden = true;
-    quitGameButton.hidden = true;
-}
-
-async function game() {
-    const rounds = Number(prompt("Enter number of rounds: "));
-    playGameButton.hidden = true;
-    playRoundButton.hidden = false;
-    quitGameButton.hidden = false;
-
-    for (let i = 0; i < rounds; ++i) {
-        const startNextRound = new Promise((resolve, reject) => {
-            playRoundButton.addEventListener('click', resolve);
-            quitGameButton.addEventListener('click', reject);
-        })
-        await startNextRound
-            .then(() => playRound())
-            .catch(() => { i = rounds });
+    let resultMessage;
+    if (result) {
+        resultMessage = `You Win! ${playerSelection} beats ${computerSelection}`;
+        ++playerScore;
     }
-
-    resetGame();
+    else {
+        resultMessage = `You Lose! ${ playerSelection } loses to ${ computerSelection }`;
+        ++computerScore;
+    }
+    results.textContent = resultMessage;
+    score.textContent = `[Player] ${playerScore} : ${computerScore} [Computer]`;
+    if (playerScore == 5 || computerScore == 5) {
+        deactivateButtons();
+        alert(`${playerScore == 5 ? "You" : "The computer"} won!`);
+    }
 }
 
-resetGame();
-playGameButton.addEventListener('click', game);
+function activateButtons() {
+    rock.addEventListener('click', playRound)
+    paper.addEventListener('click', playRound)
+    scissors.addEventListener('click', playRound)
+}
+
+function deactivateButtons() {
+    rock.removeEventListener('click', playRound)
+    paper.removeEventListener('click', playRound)
+    scissors.removeEventListener('click', playRound)
+}
+
+activateButtons();
+
+
 
 
